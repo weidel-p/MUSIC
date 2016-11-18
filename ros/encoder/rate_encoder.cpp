@@ -30,6 +30,7 @@ RateEncoder::initMUSIC(int argc, char** argv)
     setup->config("music_timestep", &timestep);
     setup->config("rate_min", &rate_min);
     setup->config("rate_max", &rate_max);
+
     normalization_factor = (rate_max - rate_min) / 2.; 
 
     port_in = setup->publishContInput("in");
