@@ -109,6 +109,7 @@ RosSensorAdapter::initMUSIC(int argc, char** argv)
 
   setup->config("ros_topic", &ros_topic);
   setup->config("stoptime", &stoptime);
+  setup->config("music_timestep", &timestep);
   setup->config("sensor_update_rate", &sensor_update_rate);
   setup->config("ros_node_name", &ros_node_name);
   setup->config("rtf", &rtf);
@@ -238,9 +239,7 @@ RosSensorAdapter::runMUSIC()
   for (int t = 0; runtime->time() < stoptime; t++)
     {
       clock.sleepNext(); 
-      pthread_mutex_lock(&data_mutex);
       runtime->tick();
-      pthread_mutex_unlock(&data_mutex);
     }
 
   std::cout << "sensor: total simtime: " << clock.time () << " s" << std::endl;
