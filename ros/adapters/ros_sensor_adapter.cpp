@@ -239,9 +239,7 @@ RosSensorAdapter::runMUSIC()
   for (int t = 0; runtime->time() < stoptime; t++)
     {
       clock.sleepNext(); 
-      pthread_mutex_lock(&data_mutex);
       runtime->tick();
-      pthread_mutex_unlock(&data_mutex);
     }
 
   std::cout << "sensor: total simtime: " << clock.time () << " s" << std::endl;
