@@ -109,6 +109,7 @@ RosSensorAdapter::initMUSIC(int argc, char** argv)
 
   setup->config("ros_topic", &ros_topic);
   setup->config("stoptime", &stoptime);
+  setup->config("music_timestep", &timestep);
   setup->config("sensor_update_rate", &sensor_update_rate);
   setup->config("ros_node_name", &ros_node_name);
   setup->config("rtf", &rtf);

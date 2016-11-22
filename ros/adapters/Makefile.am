@@ -1,5 +1,4 @@
-bin_PROGRAMS = connect_adapter ros_sensor_adapter ros_command_adapter 
-
+bin_PROGRAMS = connect_adapter ros_sensor_adapter ros_command_adapter zmq_in_adapter zmq_out_adapter 
 
 # look for ros in the common paths
 LD_ROS_PATH = -L/opt/ros/kinetic/lib/ \
@@ -8,11 +7,19 @@ LD_ROS_PATH = -L/opt/ros/kinetic/lib/ \
 INC_ROS_PATH = -I/opt/ros/kinetic/include \
 			   -I/opt/ros/jade/include
 
+
+# look for zmq in the common paths
+LD_ZMQ_PATH = -L/usr/lib/x86_64-linux-gnu/
+
+#INC_ZMQ_PATH = -I/opt/ros/kinetic/include \
+#			   -I/opt/ros/jade/include
+
 AM_CXXFLAGS = $(INC_ROS_PATH) -I$(top_srcdir) -I$(top_srcdir)/src -I$(top_builddir)/src @MPI_CXXFLAGS@
 AM_LDFLAGS = $(top_builddir)/mpidep/libmpidep.la @MPI_LDFLAGS@ \
 			 $(top_builddir)/src/libmusic.la \
 			 $(top_builddir)/src/libmusic-c.la \
-			 $(LD_ROS_PATH) 
+			 $(LD_ROS_PATH) $(LD_ZMQ_PATH)  
+
 						
 
 connect_adapter_SOURCES = connect.h connect.cpp 
@@ -23,6 +30,13 @@ ros_sensor_adapter_LDADD = -lroscpp -lrosconsole -lrostime -lroscpp_serializatio
 
 ros_command_adapter_SOURCES = ros_command_adapter.h ros_command_adapter.cpp rtclock.h rtclock.cpp
 ros_command_adapter_LDADD = -lroscpp -lrosconsole -lrostime -lroscpp_serialization -lgsl -lgslcblas -ljsoncpp
+
+
+zmq_in_adapter_SOURCES = zmq_in_adapter.h zmq_in_adapter.cpp rtclock.h rtclock.cpp
+zmq_in_adapter_LDADD = -lzmq
+
+zmq_out_adapter_SOURCES = zmq_out_adapter.h zmq_out_adapter.cpp rtclock.h rtclock.cpp
+zmq_out_adapter_LDADD = -lzmq
 
 
 
