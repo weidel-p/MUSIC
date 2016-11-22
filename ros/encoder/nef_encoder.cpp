@@ -79,7 +79,6 @@ NefEncoder::initMUSIC(int argc, char** argv)
     IAFNeuron neuron(sensor_data.size());
     neuron.setResolution(DEFAULT_NEURON_RESOLUTION);
     neurons.push_back(neuron);
-    neuron.encode(sensor_data);
   }
 
          
@@ -94,8 +93,20 @@ NefEncoder::initMUSIC(int argc, char** argv)
   MUSIC::LinearIndex l_index_out(0, size_spike_data);
   port_out->map(&l_index_out, MUSIC::Index::GLOBAL, 1);
 
-  MPI::COMM_WORLD.Barrier();
-  runtime = new MUSIC::Runtime (setup, timestep);
+    MPI::COMM_WORLD.Barrier();
+
+    // after the barrier to make sure that nest
+    // has initialized its random number generators
+    
+    std::srand( 0 );
+
+    for (int n = 0; n < size_spike_data; ++n){
+        neurons[n].init_nef(sensor_data.size());
+        neurons[n].encode(sensor_data);
+    }
+
+
+    runtime = new MUSIC::Runtime (setup, timestep);
 }
 
 void 

@@ -51,8 +51,6 @@ public:
     is_ref = 0.;
     resolution = 0.0;
 
-    // nef
-    init_nef(dimensions);
 
   } 
 
@@ -93,7 +91,6 @@ public:
            
   }
 
-private:
   void init_nef(int dimensions){
     std::vector<double> pref_direction;
     double ssum = 0;
