@@ -19,6 +19,8 @@
 #include <vector>
 #include <climits>
 
+#include "jsoncpp/json/json.h"
+
 #if (!defined(WIN32))
 #   include <sys/time.h>
 #   include <unistd.h>
@@ -146,11 +148,36 @@ s_recvAsVector(zmq::socket_t & socket, double* data)
     std::string message = s_recv(socket);
     std::vector<std::string> part_msgs = split(message, ' ');
 
-    for (unsigned int i = 1; i < part_msgs.size(); ++i){
-        data[i-1] = str2double(part_msgs[i]);
+    for (unsigned int i = 0; i < part_msgs.size(); ++i){
+        data[i] = str2double(part_msgs[i]);
     }
     
 }
+
+void
+s_recvAsJson(zmq::socket_t & socket, double* data, int datasize)
+{
+
+  std::string message = s_recv(socket);
+  //zmq::message_t message;
+  //socket.recv(&message);
+
+  Json::Reader json_reader;
+  Json::Value json_msg; 
+  if ( !json_reader.parse(message, json_msg))
+  {
+      std::cout << "ERROR WHILE PARSING JSON" << std::endl;
+  }
+  else
+  {
+      for (int i = 0; i < datasize; ++i)
+      {
+          data[i] = json_msg[i].asDouble();
+      } 
+  }
+    
+}
+
 //  Convert string to 0MQ string and send to socket
 static bool
 s_send (zmq::socket_t & socket, const std::string & string) {

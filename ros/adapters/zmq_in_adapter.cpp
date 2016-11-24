@@ -101,7 +101,7 @@ ZmqInAdapter::initMUSIC(int argc, char** argv)
 void 
 ZmqInAdapter::runMUSIC()
 {
-    std::cout << "running sensor adapter with update rate of " << 1./timestep << std::endl;
+    std::cout << "running zmq in adapter with update rate of " << 1./timestep << std::endl;
     RTClock clock(timestep / rtf);
   
     runtime = new MUSIC::Runtime (setup, timestep);
@@ -123,7 +123,7 @@ ZmqInAdapter::runZMQ()
     //  Connect our subscriber socket
     zmq::socket_t subscriber (context, ZMQ_SUB);
     subscriber.connect(zmq_addr.c_str());
-    subscriber.setsockopt(ZMQ_SUBSCRIBE, zmq_topic.c_str(), zmq_topic.size());
+    subscriber.setsockopt(ZMQ_SUBSCRIBE, "", 0); // zmq_topic.c_str(), zmq_topic.size());
     RTClock clock( 1. / (timestep * rtf) );
 
     // wait until first sensor update arrives
@@ -132,7 +132,12 @@ ZmqInAdapter::runZMQ()
 
     for (int t = 0; runtime->time() < stoptime; t++)
     {
-        s_recvAsVector(subscriber, data);
+        std::cout << "recv " << std::endl;
+        s_recvAsJson(subscriber, data, datasize);
+//        for (int i = 0; i < datasize; ++i)
+//            std::cout << data[i] << " ";
+//        std::cout << std::endl;
+
     }
 }
 

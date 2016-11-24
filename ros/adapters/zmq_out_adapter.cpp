@@ -1,6 +1,5 @@
 #include "zmq_out_adapter.h"
 
-#include "rtclock.h"
 
 int
 main(int argc, char** argv)
@@ -52,6 +51,15 @@ ZmqOutAdapter::initMUSIC(int argc, char** argv)
     setup->config("zmq_addr", &zmq_addr);
     setup->config("zmq_topic", &zmq_topic);
 
+    std::string _msg_type;
+    setup->config("message_type", &_msg_type);
+
+    if (_msg_type.compare("FloatArray") == 0){
+      msg_type = FloatArray;
+    }
+    else if (_msg_type.compare("ALE") == 0){
+      msg_type = ALE;
+    }
     
     MUSIC::ContInputPort* port_in = setup->publishContInput ("in"); //TODO: read portname from file
     
@@ -90,8 +98,39 @@ ZmqOutAdapter::initMUSIC(int argc, char** argv)
 }
 
 void
-ZmqOutAdapter::sendZMQ ()
+ZmqOutAdapter::sendZMQ (zmq::socket_t &pub)
 {
+    Json::Value json_data(Json::arrayValue);
+
+    if (msg_type == FloatArray){
+        
+        pthread_mutex_lock (&data_mutex);
+        for (int i = 0; i < datasize; ++i){
+           json_data.append(Json::Value(data[i]));
+        }
+	    pthread_mutex_unlock (&data_mutex);
+        
+
+    }
+    else if (msg_type == ALE){
+        int argmax = -1;
+        double max = -1;
+
+        pthread_mutex_lock (&data_mutex);
+        for (unsigned int i = 0; i < datasize; ++i){
+            if (data[i] > max){
+               argmax = i;
+               max = data[i];
+            } 
+            std::cout << data[i] << " ";
+        }
+        std::cout << std::endl;
+	    pthread_mutex_unlock (&data_mutex);
+
+        json_data.append(Json::Value(argmax));
+    }
+    std::cout << writer.write(json_data) << std::endl;
+    s_send (pub, writer.write(json_data));
 }
 
 void 
@@ -111,17 +150,9 @@ ZmqOutAdapter::runMUSIC()
     for (int t = 0; runtime->time() < stoptime; t++)
     {
         clock.sleepNext();
-	    pthread_mutex_lock (&data_mutex);
 
-        std::ostringstream message;
-        message << zmq_topic;
-        for (unsigned int i = 0; i < datasize; ++i){
-            message << " " << data[i];
-        }
-
-        s_send (pub, message.str());
-
-	    pthread_mutex_unlock (&data_mutex);
+        sendZMQ(pub);
+        
         runtime->tick();
     }
 

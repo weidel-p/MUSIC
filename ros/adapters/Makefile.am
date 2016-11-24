@@ -33,10 +33,10 @@ ros_command_adapter_LDADD = -lroscpp -lrosconsole -lrostime -lroscpp_serializati
 
 
 zmq_in_adapter_SOURCES = zmq_in_adapter.h zmq_in_adapter.cpp rtclock.h rtclock.cpp
-zmq_in_adapter_LDADD = -lzmq
+zmq_in_adapter_LDADD = -lzmq -ljsoncpp
 
 zmq_out_adapter_SOURCES = zmq_out_adapter.h zmq_out_adapter.cpp rtclock.h rtclock.cpp
-zmq_out_adapter_LDADD = -lzmq
+zmq_out_adapter_LDADD = -lzmq -ljsoncpp
 
 
 
