@@ -25,6 +25,7 @@ ZmqOutAdapter::init(int argc, char** argv)
     rtf = DEFAULT_RTF;
     zmq_addr = DEFAULT_ZMQ_ADDR;
     zmq_topic = DEFAULT_ZMQ_TOPIC;
+    msg_type = DEFAULT_MESSAGE_TYPE;
 
 
     pthread_mutex_init(&data_mutex, NULL);
@@ -129,7 +130,7 @@ ZmqOutAdapter::sendZMQ (zmq::socket_t &pub)
 
         json_data.append(Json::Value(argmax));
     }
-    std::cout << writer.write(json_data) << std::endl;
+    //std::cout << writer.write(json_data) << std::endl;
     s_send (pub, writer.write(json_data));
 }
 

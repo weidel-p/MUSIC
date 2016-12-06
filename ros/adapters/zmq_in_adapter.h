@@ -12,10 +12,14 @@
 
 #define DEBUG_OUTPUT false 
 
+enum msg_types {ALEGrayScaleImage};
+
 const double DEFAULT_TIMESTEP = 1e-3;
 const double DEFAULT_RTF = 1.0;
 const std::string DEFAULT_ZMQ_ADDR = "tcp://localhost:5555";
 const std::string DEFAULT_ZMQ_TOPIC = "in";
+
+const msg_types DEFAULT_MESSAGE_TYPE = ALEGrayScaleImage;
 
 class ZmqInAdapter
 {
@@ -38,6 +42,7 @@ class ZmqInAdapter
         double stoptime;
         int datasize;
         double timestep;
+        msg_types msg_type;
 
         pthread_mutex_t data_mutex;
         double* data;

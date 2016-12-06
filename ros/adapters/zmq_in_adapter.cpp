@@ -39,6 +39,7 @@ ZmqInAdapter::init(int argc, char** argv)
     rtf = DEFAULT_RTF;
     zmq_addr = DEFAULT_ZMQ_ADDR;
     zmq_topic = DEFAULT_ZMQ_TOPIC;
+    msg_type = DEFAULT_MESSAGE_TYPE;
 
     pthread_mutex_init(&data_mutex, NULL);
     // MUSIC before ZMQ to read the config first!
@@ -62,6 +63,12 @@ ZmqInAdapter::initMUSIC(int argc, char** argv)
     setup->config("zmq_addr", &zmq_addr);
     setup->config("zmq_topic", &zmq_topic);
 
+    std::string _msg_type;
+    setup->config("message_type", &_msg_type);
+
+    if (_msg_type.compare("ALEGrayScaleImage") == 0){
+      msg_type = ALEGrayScaleImage;
+    }
 
     MUSIC::ContOutputPort* port_out = setup->publishContOutput ("out");
 
@@ -119,12 +126,12 @@ ZmqInAdapter::runMUSIC()
 void 
 ZmqInAdapter::runZMQ()
 { 
+
     zmq::context_t context(1);
     //  Connect our subscriber socket
     zmq::socket_t subscriber (context, ZMQ_SUB);
     subscriber.connect(zmq_addr.c_str());
     subscriber.setsockopt(ZMQ_SUBSCRIBE, "", 0); // zmq_topic.c_str(), zmq_topic.size());
-    RTClock clock( 1. / (timestep * rtf) );
 
     // wait until first sensor update arrives
     //s_recvAsVector(subscriber, data);
@@ -133,7 +140,20 @@ ZmqInAdapter::runZMQ()
     for (int t = 0; runtime->time() < stoptime; t++)
     {
         std::cout << "recv " << std::endl;
-        s_recvAsJson(subscriber, data, datasize);
+        Json::Value json_msg = s_recvAsJson(subscriber);
+
+        if (msg_type == ALEGrayScaleImage){
+            for (int i = 0; i < datasize; ++i)
+            {
+              // outgoing messages should be between -1 and 1. Grayscale pixels have to be treated accordingly
+              data[i] = (json_msg[i].asDouble() / 127.) - 1;
+
+                std::cout << data[i] << " ";
+            } 
+            std::cout << std::endl; 
+        }
+
+
 //        for (int i = 0; i < datasize; ++i)
 //            std::cout << data[i] << " ";
 //        std::cout << std::endl;

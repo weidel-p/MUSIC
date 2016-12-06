@@ -154,8 +154,8 @@ s_recvAsVector(zmq::socket_t & socket, double* data)
     
 }
 
-void
-s_recvAsJson(zmq::socket_t & socket, double* data, int datasize)
+Json::Value
+s_recvAsJson(zmq::socket_t & socket)
 {
 
   std::string message = s_recv(socket);
@@ -168,13 +168,7 @@ s_recvAsJson(zmq::socket_t & socket, double* data, int datasize)
   {
       std::cout << "ERROR WHILE PARSING JSON" << std::endl;
   }
-  else
-  {
-      for (int i = 0; i < datasize; ++i)
-      {
-          data[i] = json_msg[i].asDouble();
-      } 
-  }
+  return json_msg;
     
 }
 
