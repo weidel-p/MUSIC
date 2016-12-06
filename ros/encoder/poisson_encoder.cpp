@@ -22,7 +22,7 @@ int
 main(int argc, char** argv)
 {
 
-  RateEncoder poisson_encoder;
+  PoissonEncoder poisson_encoder;
   poisson_encoder.init(argc, argv);
   poisson_encoder.runMUSIC();
   poisson_encoder.finalize();
@@ -30,7 +30,7 @@ main(int argc, char** argv)
 }
 
 void
-RateEncoder::init(int argc, char** argv)
+PoissonEncoder::init(int argc, char** argv)
 {
   std::cout << "initializing poisson encoder" << std::endl;
   timestep = DEFAULT_TIMESTEP;
@@ -40,7 +40,7 @@ RateEncoder::init(int argc, char** argv)
 }
 
 void
-RateEncoder::initMUSIC(int argc, char** argv)
+PoissonEncoder::initMUSIC(int argc, char** argv)
 {
   MUSIC::Setup* setup = new MUSIC::Setup (argc, argv);
 
@@ -99,7 +99,7 @@ RateEncoder::initMUSIC(int argc, char** argv)
 }
 
 void 
-RateEncoder::runMUSIC()
+PoissonEncoder::runMUSIC()
 {
   std::cout << "running poisson encoder" << std::endl;
 
@@ -124,9 +124,9 @@ RateEncoder::runMUSIC()
 	  while(next_spike[n] < t + timestep)
             {
 #if DEBUG_OUTPUT
-	      std::cout << "Poisson Encoder: neuron " << n << " spiked at " << runtime->time() << std::endl;
+	      std::cout << "Poisson Encoder: neuron " << n << " spiked at " << runtime->time() << " rate " << rates[n] << std::endl;
 #endif
-	      port_out->insertEvent(runtime->time(), MUSIC::GlobalIndex(n));
+	      port_out->insertEvent(t + timestep, MUSIC::GlobalIndex(n));
 	      next_spike[n] += negexp(denormalize(rates[n]));
             }
         }
@@ -145,7 +145,7 @@ RateEncoder::runMUSIC()
 }
 
 inline double
-RateEncoder::denormalize(double s)
+PoissonEncoder::denormalize(double s)
 {
   // incoming data is normalized between -1 and 1
   // 
@@ -155,13 +155,13 @@ RateEncoder::denormalize(double s)
 }
 
 double
-RateEncoder::negexp (double m)
+PoissonEncoder::negexp (double m)
 {
   return - m * log (drand48 ());
 }
 
 void
-RateEncoder::finalize(){
+PoissonEncoder::finalize(){
   runtime->finalize();
   delete runtime;
 }
