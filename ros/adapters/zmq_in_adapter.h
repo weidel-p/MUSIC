@@ -9,10 +9,11 @@
 
 #include <iostream>
 #include "zhelpers.hpp"
+#include "jsoncpp/json/json.h"
 
 #define DEBUG_OUTPUT false 
 
-enum msg_types {ALEGrayScaleImage};
+enum msg_types {ALEGrayScaleImage, FloatArray, GymObservation};
 
 const double DEFAULT_TIMESTEP = 1e-3;
 const double DEFAULT_RTF = 1.0;

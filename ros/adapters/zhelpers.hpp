@@ -159,8 +159,6 @@ s_recvAsJson(zmq::socket_t & socket)
 {
 
   std::string message = s_recv(socket);
-  //zmq::message_t message;
-  //socket.recv(&message);
 
   Json::Reader json_reader;
   Json::Value json_msg; 

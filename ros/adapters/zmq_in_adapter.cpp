@@ -69,6 +69,12 @@ ZmqInAdapter::initMUSIC(int argc, char** argv)
     if (_msg_type.compare("ALEGrayScaleImage") == 0){
       msg_type = ALEGrayScaleImage;
     }
+    else if (_msg_type.compare("FloatArray") == 0){
+      msg_type = FloatArray;
+    }
+    else if (_msg_type.compare("GymObservation") == 0){
+      msg_type = GymObservation;
+    }
 
     MUSIC::ContOutputPort* port_out = setup->publishContOutput ("out");
 
@@ -126,37 +132,62 @@ ZmqInAdapter::runMUSIC()
 void 
 ZmqInAdapter::runZMQ()
 { 
-
     zmq::context_t context(1);
+
     //  Connect our subscriber socket
     zmq::socket_t subscriber (context, ZMQ_SUB);
-    subscriber.connect(zmq_addr.c_str());
-    subscriber.setsockopt(ZMQ_SUBSCRIBE, "", 0); // zmq_topic.c_str(), zmq_topic.size());
+    subscriber.connect(zmq_addr);
+    subscriber.setsockopt(ZMQ_SUBSCRIBE, "", 0);
 
-    // wait until first sensor update arrives
-    //s_recvAsVector(subscriber, data);
-    // TODO is that needed?
-
+ 
+    //  Get updates, expect random Ctrl-C death
     for (int t = 0; runtime->time() < stoptime; t++)
     {
-        std::cout << "recv " << std::endl;
-        Json::Value json_msg = s_recvAsJson(subscriber);
+        //std::cout << "RECV" << std::endl;
+        Json::Value json_msg = s_recvAsJson (subscriber);
+
 
         if (msg_type == ALEGrayScaleImage){
             for (int i = 0; i < datasize; ++i)
             {
               // outgoing messages should be between -1 and 1. Grayscale pixels have to be treated accordingly
               data[i] = (json_msg[i].asDouble() / 127.) - 1;
-
-                std::cout << data[i] << " ";
             } 
-            std::cout << std::endl; 
         }
 
+        if (msg_type == FloatArray){
+            for (int i = 0; i < datasize; ++i)
+            {
+              //TODO check for input range and rescale to [-1, 1]
+              data[i] = json_msg[i].asDouble() / 2.;
+            } 
+        }
 
-//        for (int i = 0; i < datasize; ++i)
-//            std::cout << data[i] << " ";
-//        std::cout << std::endl;
+        if (msg_type == GymObservation){
+
+            int i = 0;
+            Json::Value::iterator it = json_msg.begin();
+            while (it != json_msg.end()){
+                Json::Value v = (*it);
+                data[i] = 2 * (v["value"].asFloat() - v["min"].asFloat()) / 
+                          ((v["max"].asFloat() - v["min"].asFloat())) - 1;
+
+#if DEBUG_OUTPUT
+                std::cout << v  << std::endl;
+#endif
+                ++it;
+                ++i;
+            }
+
+        }
+        
+#if DEBUG_OUTPUT
+        for (int i = 0; i < datasize; ++i)
+        {
+            std::cout << data[i] << " ";
+        }
+        std::cout << std::endl;
+#endif
 
     }
 }
