@@ -27,3 +27,5 @@ Makefile
 /stamp-h1
 
 /autom4te.cache/
+
+*.swp

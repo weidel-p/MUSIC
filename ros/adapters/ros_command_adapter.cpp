@@ -180,45 +180,49 @@ RosCommandAdapter::readMappingFile()
       std::string _msg_type;
       _msg_type = json_mapping["message_type"].asString();
       if (_msg_type.compare("Float64MultiArray") == 0)
-        {
-	  msg_type = Float64MultiArray;
-	  // no mapping needed
-        }
+      {
+	    // no mapping needed
+	    msg_type = Float64MultiArray;
+      }
       else if (_msg_type.compare("Twist") == 0)
-        {
-	  msg_type = Twist;
-            
-	  msg_map = new int[6];
-	  int index = -1;
+      {
+	    msg_type = Twist;
+              
+	    msg_map = new int[6];
+	    int index = -1;
 
-	  index = json_mapping["mapping"]["linear.x"].asInt();
-	  msg_map[0] = index + 1;
+	    index = json_mapping["mapping"]["linear.x"].asInt();
+	    msg_map[0] = index + 1;
 
-	  index = -1;
-	  index = json_mapping["mapping"]["linear.y"].asInt();
-	  msg_map[1] = index + 1;
+	    index = -1;
+	    index = json_mapping["mapping"]["linear.y"].asInt();
+	    msg_map[1] = index + 1;
 
-	  index = -1;
-	  index = json_mapping["mapping"]["linear.z"].asInt();
-	  msg_map[2] = index + 1;
+	    index = -1;
+	    index = json_mapping["mapping"]["linear.z"].asInt();
+	    msg_map[2] = index + 1;
 
-	  index = -1;
-	  index = json_mapping["mapping"]["angular.x"].asInt();
-	  msg_map[3] = index + 1;
+	    index = -1;
+	    index = json_mapping["mapping"]["angular.x"].asInt();
+	    msg_map[3] = index + 1;
 
-	  index = -1;
-	  index = json_mapping["mapping"]["angular.y"].asInt();
-	  msg_map[4] = index + 1;
+	    index = -1;
+	    index = json_mapping["mapping"]["angular.y"].asInt();
+	    msg_map[4] = index + 1;
 
-	  index = -1;
-	  index = json_mapping["mapping"]["angular.z"].asInt();
-	  msg_map[5] = index + 1;
-        }
+	    index = -1;
+	    index = json_mapping["mapping"]["angular.z"].asInt();
+	    msg_map[5] = index + 1;
+
+        min_msg = json_mapping["min"].asDouble();
+        max_msg = json_mapping["max"].asDouble();
+
+      }
       else
-        {
-	  std::cout << "ERROR: msg type unknown" << std::endl;
-	  finalize();
-        }
+      {
+	    std::cout << "ERROR: msg type unknown" << std::endl;
+	    finalize();
+      }
 
     }
 
@@ -228,34 +232,47 @@ void
 RosCommandAdapter::sendROS ()
 {
   switch (msg_type)
-    {   
+  {   
     case Float64MultiArray:
+    {
+	  std_msgs::Float64MultiArray msg;
+	  for (int i = 1; i < datasize+1; ++i)
       {
-	std_msgs::Float64MultiArray msg;
-	for (int i = 1; i < datasize+1; ++i)
-          {
 	    msg.data.push_back(data[i]);
-          }
-	publisher.publish(msg);
-	break;
       }
+	  publisher.publish(msg);
+	  break;
+    }
 
     case Twist: 
-      {
-	geometry_msgs::Twist msg;
-          
-	msg.linear.x = data[msg_map[0]];
-	msg.linear.y = data[msg_map[1]];
-	msg.linear.z = data[msg_map[2]];
+    {
 
-	msg.angular.x = data[msg_map[3]];
-	msg.angular.y = data[msg_map[4]];
-	msg.angular.z = data[msg_map[5]];
-      
-	publisher.publish(msg);
-	break;
+      for (int i = 1; i < datasize+1; ++i)
+      {
+          if (data[i] > max_msg)
+          {
+              data[i] = max_msg;
+          }
+          else if (data[i] < min_msg)
+          {
+              data[i] = min_msg;
+          }
       }
+
+	  geometry_msgs::Twist msg;
+            
+	  msg.linear.x = data[msg_map[0]];
+	  msg.linear.y = data[msg_map[1]];
+	  msg.linear.z = data[msg_map[2]];
+
+	  msg.angular.x = data[msg_map[3]];
+	  msg.angular.y = data[msg_map[4]];
+	  msg.angular.z = data[msg_map[5]];
+        
+	  publisher.publish(msg);
+	  break;
     }
+  }
 }
 
 void

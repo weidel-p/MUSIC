@@ -73,6 +73,8 @@ private:
   Json::Value json_mapping; 
   msg_types msg_type;
   int* msg_map;
+  double min_msg;
+  double max_msg;
 
   void initROS(int argc, char** argv);
   void initMUSIC(int argc, char** argv);
