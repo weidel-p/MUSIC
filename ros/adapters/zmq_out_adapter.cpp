@@ -120,18 +120,19 @@ ZmqOutAdapter::sendZMQ (zmq::socket_t &pub)
         pthread_mutex_lock (&data_mutex);
 //        std::cout << " ZMQ out ";
         for (unsigned int i = 0; i < datasize; ++i){
-            if (data[i] > max){
-               argmax = i;
-               max = data[i];
-            } 
+        //    if (data[i] > max){
+        //       argmax = i;
+        //       max = data[i];
+        //    } 
 //            std::cout << data[i] << " ";
+            Json::Value val;
+            val["value"] = data[i];
+            json_data.append(val);
         }
 //        std::cout << std::endl;
 	    pthread_mutex_unlock (&data_mutex);
-
-        json_data.append(Json::Value(argmax));
     }
-    //std::cout << writer.write(json_data) << std::endl;
+    std::cout << writer.write(json_data) << std::endl;
     s_send (pub, writer.write(json_data));
 }
 

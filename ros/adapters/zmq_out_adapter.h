@@ -14,7 +14,7 @@
 #include "rtclock.h"
 #include "jsoncpp/json/json.h"
 
-#define DEBUG_OUTPUT false 
+#define DEBUG_OUTPUT true 
 
 enum msg_types {FloatArray, ALE};
 
