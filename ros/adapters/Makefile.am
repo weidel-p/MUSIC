@@ -1,4 +1,4 @@
-bin_PROGRAMS = connect_adapter ros_sensor_adapter ros_command_adapter zmq_in_adapter zmq_out_adapter 
+bin_PROGRAMS = connect_adapter ros_sensor_adapter ros_command_adapter zmq_in_adapter zmq_out_adapter argmax_adapter 
 
 # look for ros in the common paths
 LD_ROS_PATH = -L/opt/ros/kinetic/lib/ \
@@ -21,9 +21,11 @@ AM_LDFLAGS = $(top_builddir)/mpidep/libmpidep.la @MPI_LDFLAGS@ \
 			 $(LD_ROS_PATH) $(LD_ZMQ_PATH)  
 
 						
-
 connect_adapter_SOURCES = connect.h connect.cpp 
 connect_adapter_LDADD = -lgsl -lgslcblas -ljsoncpp
+
+argmax_adapter_SOURCES = argmax.h argmax.cpp 
+argmax_adapter_LDADD = 
 
 ros_sensor_adapter_SOURCES = ros_sensor_adapter.h ros_sensor_adapter.cpp rtclock.h rtclock.cpp
 ros_sensor_adapter_LDADD = -lroscpp -lrosconsole -lrostime -lroscpp_serialization -lgsl -lgslcblas

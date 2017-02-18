@@ -16,7 +16,7 @@
 
 #define DEBUG_OUTPUT true 
 
-enum msg_types {FloatArray, ALE};
+enum msg_types {FloatArray, GymCommand};
 
 const double DEFAULT_TIMESTEP = 1e-3;
 const double DEFAULT_RTF = 1.0;

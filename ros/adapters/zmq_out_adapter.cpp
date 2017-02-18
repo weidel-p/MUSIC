@@ -58,8 +58,8 @@ ZmqOutAdapter::initMUSIC(int argc, char** argv)
     if (_msg_type.compare("FloatArray") == 0){
       msg_type = FloatArray;
     }
-    else if (_msg_type.compare("ALE") == 0){
-      msg_type = ALE;
+    else if (_msg_type.compare("GymCommand") == 0){
+      msg_type = GymCommand;
     }
     
     MUSIC::ContInputPort* port_in = setup->publishContInput ("in"); //TODO: read portname from file
@@ -113,23 +113,14 @@ ZmqOutAdapter::sendZMQ (zmq::socket_t &pub)
         
 
     }
-    else if (msg_type == ALE){
-        int argmax = -1;
-        double max = -1;
+    else if (msg_type == GymCommand){
 
         pthread_mutex_lock (&data_mutex);
-//        std::cout << " ZMQ out ";
         for (unsigned int i = 0; i < datasize; ++i){
-        //    if (data[i] > max){
-        //       argmax = i;
-        //       max = data[i];
-        //    } 
-//            std::cout << data[i] << " ";
             Json::Value val;
             val["value"] = data[i];
             json_data.append(val);
         }
-//        std::cout << std::endl;
 	    pthread_mutex_unlock (&data_mutex);
     }
     std::cout << writer.write(json_data) << std::endl;
